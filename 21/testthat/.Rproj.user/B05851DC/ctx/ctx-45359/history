@@ -1,0 +1,45 @@
+usethis::use_description()
+library(shiny)
+library(testthat) # >= 3.0.0
+library(shinytest)
+usethis::use_test("R/load.R")
+usethis::use_test()
+test_that("multiplication works", {
+expect_equal(2 * 2, 4)
+})
+# Create sample data
+df <- tibble::tibble(x = 1, y = 2)
+df
+test_that("load_file() handles all input types", {
+# Create sample data
+df <- tibble::tibble(x = 1, y = 2)
+path_csv <- tempfile()
+path_tsv <- tempfile()
+write.csv(df, path_csv, row.names = FALSE)
+write.table(df, path_tsv, sep = "\t", row.names = FALSE)
+expect_equal(load_file("test.csv", path_csv), df)
+expect_equal(load_file("test.tsv", path_tsv), df)
+expect_error(load_file("blah", path_csv), "Invalid file")
+})
+load_file <- function(name, path) {
+ext <- tools::file_ext(name)
+switch(ext,
+csv = vroom::vroom(path, delim = ",", col_types = list()),
+tsv = vroom::vroom(path, delim = "\t", col_types = list()),
+validate("Invalid file; Please upload a .csv or .tsv file")
+)
+}
+test_that("load_file() handles all input types", {
+# Create sample data
+df <- tibble::tibble(x = 1, y = 2)
+path_csv <- tempfile()
+path_tsv <- tempfile()
+write.csv(df, path_csv, row.names = FALSE)
+write.table(df, path_tsv, sep = "\t", row.names = FALSE)
+expect_equal(load_file("test.csv", path_csv), df)
+expect_equal(load_file("test.tsv", path_tsv), df)
+expect_error(load_file("blah", path_csv), "Invalid file")
+})
+devtools::test_file()
+devtools::test_active_file()
+devtools::test_active_file()
